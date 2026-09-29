@@ -7,7 +7,6 @@ import {
   Mail,
   MapPin,
   Menu,
-  MessageCircle,
   MoveHorizontal,
   Phone,
 } from "lucide-react";
@@ -35,6 +34,16 @@ import heroBefore from "@/assets/hero/kitchen-before.webp";
 const heading =
   "text-balance text-[clamp(1.85rem,3vw,2.6rem)] font-bold leading-[1.18] tracking-[-0.035em]";
 const goldButton = "rounded-full bg-gold px-6 text-primary hover:bg-[#ebce9a]";
+const whatsappUrl =
+  "https://wa.me/62215550184?text=Halo%20Atrium%2C%20saya%20ingin%20konsultasi%20gratis%20mengenai%20proyek%20interior.";
+
+function WhatsAppIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M12 2a9.8 9.8 0 0 0-8.4 14.9L2.2 22l5.2-1.4A10 10 0 1 0 12 2Zm0 17.9a8 8 0 0 1-4.1-1.1l-.3-.2-3.1.8.8-3-.2-.3A8 8 0 1 1 12 19.9Zm4.4-6c-.2-.1-1.4-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.5 6.5 0 0 1-3.2-2.8c-.2-.3 0-.4.1-.5l.4-.5.3-.5c.1-.2 0-.4 0-.5l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.7.6.7.2 1.3.2 1.8.1.5-.1 1.4-.6 1.6-1.2.2-.6.2-1.1.2-1.2-.2-.3-.4-.4-.6-.5Z" />
+    </svg>
+  );
+}
 
 function InstagramIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -174,8 +183,8 @@ function Header() {
         </nav>
         <div className="hidden lg:block">
           <Button asChild className={goldButton}>
-            <a href="#contact">
-              Minta penawaran <ArrowRight />
+            <a href={whatsappUrl} target="_blank" rel="noreferrer">
+              Konsultasi gratis <WhatsAppIcon className="size-4" />
             </a>
           </Button>
         </div>
@@ -216,8 +225,13 @@ function Header() {
                 </a>
               ))}
               <Button asChild className={cn(goldButton, "mt-5")}>
-                <a href="#contact" onClick={() => setOpen(false)}>
-                  Minta penawaran <ArrowRight />
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => setOpen(false)}
+                >
+                  Konsultasi gratis <WhatsAppIcon className="size-4" />
                 </a>
               </Button>
             </nav>
@@ -616,8 +630,8 @@ function Footer() {
     { label: "LinkedIn", href: "https://linkedin.com", icon: LinkedinIcon },
     {
       label: "WhatsApp",
-      href: "https://wa.me/62215550184",
-      icon: MessageCircle,
+      href: whatsappUrl,
+      icon: WhatsAppIcon,
     },
   ];
 
@@ -635,8 +649,8 @@ function Footer() {
             </p>
           </div>
           <Button asChild size="lg" className={cn(goldButton, "shrink-0")}>
-            <a href="mailto:halo@atriumcontracting.com">
-              Mulai konsultasi <ArrowRight />
+            <a href={whatsappUrl} target="_blank" rel="noreferrer">
+              Chat WA <WhatsAppIcon className="size-4" />
             </a>
           </Button>
         </div>
