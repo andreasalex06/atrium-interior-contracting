@@ -64,6 +64,14 @@
   padding-inline: clamp(1rem, 5.5vw, 4.5rem);
 }
 
+.hero-compare:has(.hero-reveal-range:focus-visible) .hero-reveal-handle > span {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+  box-shadow:
+    0 0 0 7px rgb(164 126 66 / 0.75),
+    0 12px 30px rgb(0 0 0 / 0.28);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, House, Mail, MapPin, Menu, Phone } from "lucide-react";
+import {
+  ArrowRight,
+  House,
+  Mail,
+  MapPin,
+  Menu,
+  MoveHorizontal,
+  Phone,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -18,6 +26,8 @@ import {
   statistics,
 } from "@/data/content";
 import { cn } from "@/lib/utils";
+import heroAfter from "@/assets/hero/kitchen-after.webp";
+import heroBefore from "@/assets/hero/kitchen-before.webp";
 
 const heading =
   "text-balance text-[clamp(1.85rem,3vw,2.6rem)] font-bold leading-[1.18] tracking-[-0.035em]";
@@ -149,22 +159,92 @@ function Header() {
 }
 
 function Hero() {
+  const [reveal, setReveal] = useState(42);
+  const [intro, setIntro] = useState(false);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    setReveal(24);
+    const start = window.setTimeout(() => {
+      setIntro(true);
+      setReveal(42);
+    }, 350);
+    const finish = window.setTimeout(() => setIntro(false), 1150);
+    return () => {
+      window.clearTimeout(start);
+      window.clearTimeout(finish);
+    };
+  }, []);
+
   return (
     <section
       id="home"
       aria-labelledby="hero-title"
-      className="relative isolate bg-primary text-white"
+      className="hero-compare relative isolate overflow-hidden bg-primary text-white"
     >
       <img
-        src={photoUrl(projects[0].photo, 2000)}
-        alt="Interior dapur dengan kabinet kayu dan meja island"
+        src={heroAfter}
+        alt="Dapur setelah direnovasi dengan kabinet kayu dan island batu"
         fetchPriority="high"
-        width={2000}
-        height={1300}
-        className="absolute inset-0 -z-20 size-full object-cover object-[62%_center] lg:object-center"
+        width={1680}
+        height={945}
+        className="absolute inset-0 -z-30 size-full object-cover object-center"
       />
-      <div className="absolute inset-0 -z-10 bg-linear-to-r from-[#0c211e]/95 via-[#0c211e]/65 to-[#0c211e]/15" />
-      <div className="page-container grid gap-8 py-9 sm:py-12 md:grid-cols-[minmax(0,1.15fr)_minmax(0,.85fr)] md:items-end md:gap-6 md:py-14 lg:min-h-[490px] lg:py-16 xl:min-h-[520px]">
+      <div
+        className={cn(
+          "absolute inset-0 -z-20 overflow-hidden",
+          intro &&
+            "transition-[clip-path] duration-700 ease-[cubic-bezier(.16,1,.3,1)]",
+        )}
+        style={{ clipPath: `inset(0 ${100 - reveal}% 0 0)` }}
+        aria-hidden="true"
+      >
+        <img
+          src={heroBefore}
+          alt=""
+          width={1680}
+          height={945}
+          className="size-full object-cover object-center"
+        />
+      </div>
+      <div className="absolute inset-0 -z-10 bg-linear-to-r from-[#0c211e]/95 via-[#0c211e]/58 to-[#0c211e]/10" />
+
+      <div
+        aria-hidden="true"
+        className={cn(
+          "hero-reveal-handle pointer-events-none absolute inset-y-0 z-2 w-px bg-white/90 shadow-[0_0_0_1px_rgba(0,0,0,.12)]",
+          intro &&
+            "transition-[left] duration-700 ease-[cubic-bezier(.16,1,.3,1)]",
+        )}
+        style={{ left: `${reveal}%` }}
+      >
+        <span className="absolute left-1/2 top-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-primary text-white shadow-lg">
+          <MoveHorizontal className="size-5" />
+        </span>
+      </div>
+
+      <input
+        type="range"
+        min="8"
+        max="92"
+        value={reveal}
+        onChange={(event) => {
+          setIntro(false);
+          setReveal(Number(event.target.value));
+        }}
+        aria-label="Bandingkan dapur sebelum dan sesudah renovasi"
+        aria-valuetext={`${reveal} persen gambar sebelum renovasi`}
+        className="hero-reveal-range absolute inset-x-0 top-1/2 z-1 h-14 -translate-y-1/2 cursor-ew-resize opacity-0"
+      />
+
+      <span className="pointer-events-none absolute left-4 top-4 z-3 rounded-sm bg-primary/85 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[.12em] sm:left-6 lg:left-10">
+        Sebelum
+      </span>
+      <span className="pointer-events-none absolute right-4 top-4 z-3 rounded-sm bg-white/90 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[.12em] text-primary sm:right-6 lg:right-10">
+        Sesudah
+      </span>
+
+      <div className="page-container relative z-10 grid gap-8 py-12 sm:py-14 md:grid-cols-[minmax(0,1.15fr)_minmax(0,.85fr)] md:items-end md:gap-6 md:py-16 lg:min-h-[520px] lg:py-18 xl:min-h-[550px]">
         <div className="min-w-0 max-w-[590px]">
           <h1
             id="hero-title"
