@@ -1,0 +1,78 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme inline {
+  --font-sans: "Inter", sans-serif;
+  --color-background: #ffffff;
+  --color-foreground: #183532;
+  --color-primary: #183532;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f7f8f5;
+  --color-secondary-foreground: #183532;
+  --color-muted: #f7f8f5;
+  --color-muted-foreground: #536360;
+  --color-accent: #efe5d2;
+  --color-accent-foreground: #183532;
+  --color-destructive: #b42318;
+  --color-border: #e1e6e2;
+  --color-input: #e1e6e2;
+  --color-ring: #a47e42;
+  --color-gold: #ddbc7f;
+  --color-gold-ink: #95703a;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+  }
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    background: #fff;
+    color: #183532;
+  }
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:not(:disabled),
+  a {
+    cursor: pointer;
+  }
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 4px;
+  }
+  ::selection {
+    background: #ddbc7f;
+    color: #183532;
+  }
+}
+
+/* One shared content edge. Responsive layout stays alongside its JSX. */
+@utility page-container {
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 5.5vw, 4.5rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
