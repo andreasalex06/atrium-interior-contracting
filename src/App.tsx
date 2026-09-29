@@ -177,7 +177,7 @@ function Header() {
         <div className="hidden lg:block">
           <Button asChild className={goldButton}>
             <a href={whatsappUrl} target="_blank" rel="noreferrer">
-              Konsultasi gratis <FaWhatsapp className="size-4" />
+              Konsultasi gratis <FaWhatsapp className="size-5" />
             </a>
           </Button>
         </div>
@@ -224,7 +224,7 @@ function Header() {
                   rel="noreferrer"
                   onClick={() => setOpen(false)}
                 >
-                  Konsultasi gratis <FaWhatsapp className="size-4" />
+                  Konsultasi gratis <FaWhatsapp className="size-5" />
                 </a>
               </Button>
             </nav>
@@ -643,7 +643,7 @@ function Footer() {
           </div>
           <Button asChild size="lg" className={cn(goldButton, "shrink-0")}>
             <a href={whatsappUrl} target="_blank" rel="noreferrer">
-              Chat WA <FaWhatsapp className="size-4" />
+              Chat WA <FaWhatsapp className="size-5" />
             </a>
           </Button>
         </div>
@@ -664,7 +664,10 @@ function Footer() {
                   aria-label={label}
                   className="flex size-10 items-center justify-center rounded-full border border-white/20 text-white/80 transition-colors hover:border-gold hover:bg-gold hover:text-primary"
                 >
-                  <Icon className="size-4" aria-hidden="true" />
+                  <Icon
+                    className={cn("size-4", label === "WhatsApp" && "size-5")}
+                    aria-hidden="true"
+                  />
                 </a>
               ))}
             </div>
