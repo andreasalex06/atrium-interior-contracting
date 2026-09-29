@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   House,
@@ -160,21 +160,50 @@ function Header() {
 
 function Hero() {
   const [reveal, setReveal] = useState(42);
-  const [intro, setIntro] = useState(false);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+  const revealRef = useRef(42);
+  const directionRef = useRef<"left" | "right">("right");
+  const resumeTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    setReveal(24);
-    const start = window.setTimeout(() => {
-      setIntro(true);
-      setReveal(42);
-    }, 350);
-    const finish = window.setTimeout(() => setIntro(false), 1150);
+    setIsAutoPlaying(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isAutoPlaying) return;
+
+    const move = () => {
+      const nextReveal = directionRef.current === "right" ? 72 : 28;
+      revealRef.current = nextReveal;
+      setReveal(nextReveal);
+      directionRef.current = directionRef.current === "right" ? "left" : "right";
+    };
+
+    move();
+    const loop = window.setInterval(move, 5000);
+
+    return () => window.clearInterval(loop);
+  }, [isAutoPlaying]);
+
+  useEffect(() => {
     return () => {
-      window.clearTimeout(start);
-      window.clearTimeout(finish);
+      if (resumeTimerRef.current !== null) {
+        window.clearTimeout(resumeTimerRef.current);
+      }
     };
   }, []);
+
+  const pauseAutoPlay = () => {
+    setIsAutoPlaying(false);
+    if (resumeTimerRef.current !== null) {
+      window.clearTimeout(resumeTimerRef.current);
+    }
+    resumeTimerRef.current = window.setTimeout(() => {
+      directionRef.current = revealRef.current >= 50 ? "left" : "right";
+      setIsAutoPlaying(true);
+    }, 4000);
+  };
 
   return (
     <section
@@ -193,8 +222,8 @@ function Hero() {
       <div
         className={cn(
           "absolute inset-0 -z-20 overflow-hidden",
-          intro &&
-            "transition-[clip-path] duration-700 ease-[cubic-bezier(.16,1,.3,1)]",
+          isAutoPlaying &&
+            "transition-[clip-path] duration-[5000ms] ease-in-out",
         )}
         style={{ clipPath: `inset(0 ${100 - reveal}% 0 0)` }}
         aria-hidden="true"
@@ -213,8 +242,7 @@ function Hero() {
         aria-hidden="true"
         className={cn(
           "hero-reveal-handle pointer-events-none absolute inset-y-0 z-2 w-px bg-white/90 shadow-[0_0_0_1px_rgba(0,0,0,.12)]",
-          intro &&
-            "transition-[left] duration-700 ease-[cubic-bezier(.16,1,.3,1)]",
+          isAutoPlaying && "transition-[left] duration-[5000ms] ease-in-out",
         )}
         style={{ left: `${reveal}%` }}
       >
@@ -229,9 +257,13 @@ function Hero() {
         max="92"
         value={reveal}
         onChange={(event) => {
-          setIntro(false);
-          setReveal(Number(event.target.value));
+          pauseAutoPlay();
+          const nextReveal = Number(event.target.value);
+          revealRef.current = nextReveal;
+          setReveal(nextReveal);
         }}
+        onPointerDown={pauseAutoPlay}
+        onKeyDown={pauseAutoPlay}
         aria-label="Bandingkan dapur sebelum dan sesudah renovasi"
         aria-valuetext={`${reveal} persen gambar sebelum renovasi`}
         className="hero-reveal-range absolute inset-x-0 top-1/2 z-1 h-14 -translate-y-1/2 cursor-ew-resize opacity-0"
