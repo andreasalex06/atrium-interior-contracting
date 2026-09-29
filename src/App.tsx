@@ -1,10 +1,13 @@
+import type { SVGProps } from "react";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
+  Clock3,
   House,
   Mail,
   MapPin,
   Menu,
+  MessageCircle,
   MoveHorizontal,
   Phone,
 } from "lucide-react";
@@ -33,6 +36,32 @@ const heading =
   "text-balance text-[clamp(1.85rem,3vw,2.6rem)] font-bold leading-[1.18] tracking-[-0.035em]";
 const goldButton = "rounded-full bg-gold px-6 text-primary hover:bg-[#ebce9a]";
 
+function InstagramIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function FacebookIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M13.7 21v-8h2.7l.4-3.1h-3.1v-2c0-.9.3-1.5 1.6-1.5H17V3.6c-.8-.1-1.6-.2-2.4-.2-2.4 0-4.1 1.5-4.1 4.2v2.3H7.8V13h2.7v8h3.2Z" />
+    </svg>
+  );
+}
+
+function LinkedinIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M6.5 8.1H3.3V21h3.2V8.1ZM4.9 3A1.9 1.9 0 1 0 5 6.8 1.9 1.9 0 0 0 4.9 3ZM21 13.6c0-3.9-2.1-5.8-4.9-5.8-2.2 0-3.3 1.3-3.8 2.1V8.1H9.1V21h3.2v-6.4c0-1.7.3-3.4 2.5-3.4s2.2 2 2.2 3.5V21h3.2l.8-7.4Z" />
+    </svg>
+  );
+}
+
 function Brand() {
   return (
     <a
@@ -58,8 +87,19 @@ function Brand() {
 function Header() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("home");
+  const [indicator, setIndicator] = useState<{ left: number; width: number }>();
+  const navRef = useRef<HTMLElement>(null);
+  const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+  const scrollLockUntilRef = useRef(0);
+
+  const selectNavigation = (id: string) => {
+    scrollLockUntilRef.current = Date.now() + 900;
+    setActive(id);
+  };
+
   useEffect(() => {
     const update = () => {
+      if (Date.now() < scrollLockUntilRef.current) return;
       const current = navigation
         .map((item) => ({
           id: item.id,
@@ -83,22 +123,49 @@ function Header() {
       query.removeEventListener("change", closeOnDesktop);
     };
   }, []);
+
+  useEffect(() => {
+    const updateIndicator = () => {
+      const nav = navRef.current;
+      const link = linkRefs.current[active];
+      if (!nav || !link) return;
+      const navRect = nav.getBoundingClientRect();
+      const linkRect = link.getBoundingClientRect();
+      setIndicator({ left: linkRect.left - navRect.left, width: linkRect.width });
+    };
+    updateIndicator();
+    window.addEventListener("resize", updateIndicator);
+    return () => window.removeEventListener("resize", updateIndicator);
+  }, [active]);
+
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-white">
       <div className="page-container flex h-18 items-center justify-between gap-6 lg:h-20">
         <Brand />
         <nav
+          ref={navRef}
           aria-label="Navigasi utama"
-          className="hidden items-center gap-5 lg:flex xl:gap-7"
+          className="relative hidden items-center gap-5 lg:flex xl:gap-7"
         >
+          {indicator && (
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute bottom-0 h-0.5 bg-gold transition-[left,width] duration-300 ease-out motion-reduce:transition-none"
+              style={{ left: indicator.left, width: indicator.width }}
+            />
+          )}
           {navigation.map((item) => (
             <a
               key={item.id}
+              ref={(node) => {
+                linkRefs.current[item.id] = node;
+              }}
               href={`#${item.id}`}
+              onClick={() => selectNavigation(item.id)}
               aria-current={active === item.id ? "location" : undefined}
               className={cn(
-                "relative flex min-h-11 items-center text-[13px] font-medium transition-colors after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:origin-left after:scale-x-0 after:bg-gold after:transition-transform hover:text-gold-ink hover:after:scale-x-100",
-                active === item.id && "font-semibold after:scale-x-100",
+                "relative flex min-h-11 items-center text-[13px] font-medium transition-colors duration-200 hover:text-gold-ink",
+                active === item.id && "font-semibold text-gold-ink",
               )}
             >
               {item.label}
@@ -135,7 +202,10 @@ function Header() {
                 <a
                   key={item.id}
                   href={`#${item.id}`}
-                  onClick={() => setOpen(false)}
+                  onClick={() => {
+                    selectNavigation(item.id);
+                    setOpen(false);
+                  }}
                   aria-current={active === item.id ? "location" : undefined}
                   className={cn(
                     "rounded-md px-3 py-3.5 text-base hover:bg-secondary",
@@ -540,6 +610,17 @@ function Portfolio() {
 }
 
 function Footer() {
+  const socialLinks = [
+    { label: "Instagram", href: "https://instagram.com", icon: InstagramIcon },
+    { label: "Facebook", href: "https://facebook.com", icon: FacebookIcon },
+    { label: "LinkedIn", href: "https://linkedin.com", icon: LinkedinIcon },
+    {
+      label: "WhatsApp",
+      href: "https://wa.me/62215550184",
+      icon: MessageCircle,
+    },
+  ];
+
   return (
     <footer id="contact" className="bg-primary text-white">
       <div className="page-container py-12 sm:py-16">
@@ -559,13 +640,27 @@ function Footer() {
             </a>
           </Button>
         </div>
-        <div className="grid gap-9 py-10 sm:grid-cols-2 lg:grid-cols-[1.2fr_.7fr_1fr] lg:gap-14">
+        <div className="grid gap-x-8 gap-y-10 py-10 sm:grid-cols-2 lg:grid-cols-[1.25fr_.65fr_.8fr_1.1fr] lg:gap-x-10 lg:py-12">
           <div>
             <Brand />
             <p className="mt-5 max-w-xs text-sm leading-7 text-white/75">
               Renovasi yang dirancang dengan teliti untuk ruang yang nyaman,
               fungsional, dan berkarakter.
             </p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              {socialLinks.map(({ label, href, icon: Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={label}
+                  className="flex size-10 items-center justify-center rounded-full border border-white/20 text-white/80 transition-colors hover:border-gold hover:bg-gold hover:text-primary"
+                >
+                  <Icon className="size-4" aria-hidden="true" />
+                </a>
+              ))}
+            </div>
           </div>
           <div>
             <h3 className="font-semibold text-gold">Jelajahi</h3>
@@ -584,8 +679,23 @@ function Footer() {
               ))}
             </nav>
           </div>
+          <div>
+            <h3 className="font-semibold text-gold">Layanan</h3>
+            <ul className="mt-3 grid text-sm text-white/80">
+              {services.map((service) => (
+                <li key={service.title}>
+                  <a
+                    href="#services"
+                    className="inline-flex py-2 hover:text-gold"
+                  >
+                    {service.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
           <div className="sm:col-span-2 lg:col-span-1">
-            <h3 className="font-semibold text-gold">Kunjungi kami</h3>
+            <h3 className="font-semibold text-gold">Hubungi kami</h3>
             <address className="mt-5 space-y-4 text-sm not-italic leading-6 text-white/80">
               <p className="flex gap-3">
                 <MapPin className="mt-1 size-4 shrink-0" />
@@ -609,12 +719,28 @@ function Footer() {
                 <Phone className="size-4 shrink-0" />
                 +62 21 555 0184
               </a>
+              <p className="flex gap-3">
+                <Clock3 className="mt-1 size-4 shrink-0" />
+                <span>
+                  Senin–Jumat, 08.00–17.00
+                  <br />
+                  Sabtu, sesuai janji temu
+                </span>
+              </p>
             </address>
           </div>
         </div>
-        <p className="border-t border-white/20 pt-6 text-xs text-white/65">
-          © 2026 Atrium Interior Contracting
-        </p>
+        <div className="flex flex-col gap-4 border-t border-white/20 pt-6 text-xs text-white/65 sm:flex-row sm:items-center sm:justify-between">
+          <p>© 2026 Atrium Interior Contracting. Seluruh hak dilindungi.</p>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            <a href="#contact" className="hover:text-gold">
+              Kebijakan privasi
+            </a>
+            <a href="#contact" className="hover:text-gold">
+              Syarat layanan
+            </a>
+          </div>
+        </div>
       </div>
     </footer>
   );
